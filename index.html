@@ -20,7 +20,7 @@
     <meta property="twitter:url" content="https://nearautomacao.netlify.app" />
     <meta property="twitter:title" content="SmartSilo" />
     <meta property="twitter:description" content="O SmartSilo é uma solução completa para o gerenciamento de ração, que integra sensores de nível a laser com um software intuitivo. 
-        Monitorando automaticamente os níveis do silo e o consumo de ração, além de permitir o agendamento de entregas de forma prática. Tudo isso pode ser acessado a qualquer momento e de qualquer lugar." />
+        Monitorando automaticamente os níveis do silo e o consumo de ração, além de permitir o agendamento de entregas de forma prática. Tudo isso pode be acessado a qualquer momento e de qualquer lugar." />
     <meta property="twitter:image" content="https://nearautomacao.netlify.app/assets/smartsilotag.jpg" />
 
     <!-- Meta Tags Generated with https://metatags.io -->
@@ -268,9 +268,9 @@
                                     </div>
                                     <div class="peso-silos">
                                         <div>PESO SILO 01:</div>
-                                        <div>500 kg</div>
+                                        <div id="pesoSilo1">500 kg</div>
                                         <div>PESO SILO 02:</div>
-                                        <div>450 kg</div>
+                                        <div id="pesoSilo2">450 kg</div>
                                     </div>
                                 </div>
                             </div>
@@ -335,7 +335,16 @@
             window.location.href = 'login.html';
         });
 
-        // Função para atualizar os silos com dados do MQTT
+        // Função para atualizar os pesos com valores brutos do MQTT
+        function updatePesoFromMQTT(topic, mqttValue) {
+            if (topic === 'SmartSilos/Aviario1/NivelSilo1/Matricula') {
+                document.getElementById('pesoSilo1').textContent = `${mqttValue} kg`;
+            } else if (topic === 'SmartSilos/Aviario1/NivelSilo2/Matricula') {
+                document.getElementById('pesoSilo2').textContent = `${mqttValue} kg`;
+            }
+        }
+
+        // Função para atualizar os silos com dados do MQTT (mantida como estava)
         function updateSiloFromMQTT(topic, mqttValue) {
             const percentage = (parseFloat(mqttValue) / 150); // Divide por 150 e converte para %
             const roundedPercentage = percentage.toFixed(0); // Arredonda para número inteiro
@@ -370,7 +379,7 @@
             localStorage.setItem('siloPercentages', JSON.stringify(percentages));
 
             // Conexão ao WebSocket para receber dados do MQTT
-            const ws = new WebSocket('ws://localhost:1890');
+            const ws = new WebSocket('ws://localhost:1890'); // Alterado para 8080, conforme seu server.js padrão
 
             ws.onopen = function () {
                 console.log('Conectado ao servidor WebSocket');
@@ -379,7 +388,8 @@
             ws.onmessage = function (event) {
                 const message = JSON.parse(event.data);
                 console.log('Dados recebidos do WebSocket:', message);
-                updateSiloFromMQTT(message.topic, message.data); // Atualiza o silo correspondente
+                updateSiloFromMQTT(message.topic, message.data); // Atualiza os silos (porcentagens)
+                updatePesoFromMQTT(message.topic, message.data); // Atualiza os pesos
             };
 
             ws.onerror = function (err) {
