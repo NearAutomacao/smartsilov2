@@ -268,9 +268,9 @@
                                     </div>
                                     <div class="peso-silos">
                                         <div>PESO SILO 01:</div>
-                                        <div id="pesoSilo1"></div>
+                                        <div id="pesoSilo1">500 kg</div>
                                         <div>PESO SILO 02:</div>
-                                        <div id="pesoSilo2"></div>
+                                        <div id="pesoSilo2">450 kg</div>
                                     </div>
                                 </div>
                             </div>
@@ -335,16 +335,7 @@
             window.location.href = 'login.html';
         });
 
-        // Função para atualizar os pesos com valores brutos do MQTT
-        function updatePesoFromMQTT(topic, mqttValue) {
-            if (topic === 'SmartSilos/Aviario1/NivelSilo1/Matricula') {
-                document.getElementById('pesoSilo1').textContent = `${mqttValue} kg`;
-            } else if (topic === 'SmartSilos/Aviario1/NivelSilo2/Matricula') {
-                document.getElementById('pesoSilo2').textContent = `${mqttValue} kg`;
-            }
-        }
-
-        // Função para atualizar os silos com dados do MQTT (mantida como estava)
+        // Função para atualizar os silos com dados do MQTT
         function updateSiloFromMQTT(topic, mqttValue) {
             const percentage = (parseFloat(mqttValue) / 150); // Divide por 150 e converte para %
             const roundedPercentage = percentage.toFixed(0); // Arredonda para número inteiro
@@ -354,11 +345,19 @@
                 const silo1Percentage = silo1Container.querySelector('.silo-percentage');
                 silo1Container.setAttribute('data-percent', roundedPercentage);
                 silo1Percentage.textContent = `${roundedPercentage}%`;
+                document.getElementById('pesoSilo1').textContent = `${mqttValue} kg`;
+                // Salvar no localStorage
+                localStorage.setItem('silo1Percentage', roundedPercentage);
+                localStorage.setItem('silo1Peso', mqttValue);
             } else if (topic === 'SmartSilos/Aviario1/NivelSilo2/Matricula') {
                 const silo2Container = document.querySelector('.silo-container:nth-child(2)'); // Segundo silo
                 const silo2Percentage = silo2Container.querySelector('.silo-percentage');
                 silo2Container.setAttribute('data-percent', roundedPercentage);
                 silo2Percentage.textContent = `${roundedPercentage}%`;
+                document.getElementById('pesoSilo2').textContent = `${mqttValue} kg`;
+                // Salvar no localStorage
+                localStorage.setItem('silo2Percentage', roundedPercentage);
+                localStorage.setItem('silo2Peso', mqttValue);
             }
 
             // Atualiza as barras de preenchimento
@@ -366,6 +365,29 @@
         }
 
         document.addEventListener("DOMContentLoaded", function() {
+            // Restaurar valores do localStorage ao carregar a página
+            const silo1PercentageStored = localStorage.getItem('silo1Percentage');
+            const silo1PesoStored = localStorage.getItem('silo1Peso');
+            const silo2PercentageStored = localStorage.getItem('silo2Percentage');
+            const silo2PesoStored = localStorage.getItem('silo2Peso');
+
+            const silo1Container = document.querySelector('.silo-container:nth-child(1)');
+            const silo1Percentage = silo1Container.querySelector('.silo-percentage');
+            const silo2Container = document.querySelector('.silo-container:nth-child(2)');
+            const silo2Percentage = silo2Container.querySelector('.silo-percentage');
+
+            if (silo1PercentageStored && silo1PesoStored) {
+                silo1Container.setAttribute('data-percent', silo1PercentageStored);
+                silo1Percentage.textContent = `${silo1PercentageStored}%`;
+                document.getElementById('pesoSilo1').textContent = `${silo1PesoStored} kg`;
+            }
+
+            if (silo2PercentageStored && silo2PesoStored) {
+                silo2Container.setAttribute('data-percent', silo2PercentageStored);
+                silo2Percentage.textContent = `${silo2PercentageStored}%`;
+                document.getElementById('pesoSilo2').textContent = `${silo2PesoStored} kg`;
+            }
+
             updateSilos();
 
             const userWelcome = document.getElementById('userWelcome');
@@ -379,7 +401,7 @@
             localStorage.setItem('siloPercentages', JSON.stringify(percentages));
 
             // Conexão ao WebSocket para receber dados do MQTT
-            const ws = new WebSocket('ws://localhost:1890'); // Alterado para 8080, conforme seu server.js padrão
+            const ws = new WebSocket('ws://localhost:1890'); // Ajustado para 8080, conforme server.js padrão
 
             ws.onopen = function () {
                 console.log('Conectado ao servidor WebSocket');
@@ -388,8 +410,7 @@
             ws.onmessage = function (event) {
                 const message = JSON.parse(event.data);
                 console.log('Dados recebidos do WebSocket:', message);
-                updateSiloFromMQTT(message.topic, message.data); // Atualiza os silos (porcentagens)
-                updatePesoFromMQTT(message.topic, message.data); // Atualiza os pesos
+                updateSiloFromMQTT(message.topic, message.data); // Atualiza os silos e pesos
             };
 
             ws.onerror = function (err) {
