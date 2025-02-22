@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-        <!-- Primary Meta Tags -->
+    <!-- Primary Meta Tags -->
     <title>SmartSilo</title>
     <meta name="title" content="SmartSilo" />
     <meta name="description" content="O SmartSilo é uma solução completa para o gerenciamento de ração, que integra sensores de nível a laser com um software intuitivo. 
@@ -26,14 +26,8 @@
     <!-- Meta Tags Generated with https://metatags.io -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-<title>SmartSilo</title>
     <style>
-
-    
-        
         body {
             display: flex;
             justify-content: center;
@@ -128,7 +122,13 @@
             console.log("Usuário digitado:", usernameInput); // Depuração
             console.log("Senha digitada:", passwordInput);   // Depuração
 
-            if (usernameInput === adminUser,luanUser, thalisUser, jeisonUser && passwordInput === adminPassword,luanPassword, thalisPassword, jeisonPassword) {
+            // Verifica cada par de usuário e senha
+            if (
+                (usernameInput === adminUser && passwordInput === adminPassword) ||
+                (usernameInput === luanUser && passwordInput === luanPassword) ||
+                (usernameInput === jeisonUser && passwordInput === jeisonPassword) ||
+                (usernameInput === thalisUser && passwordInput === thalisPassword)
+            ) {
                 console.log("Login bem-sucedido! Redirecionando..."); // Depuração
                 localStorage.setItem('loggedUser', usernameInput); // Armazena o usuário logado
                 window.location.href = "index.html"; // Redireciona para index.html
