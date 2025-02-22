@@ -82,6 +82,12 @@
         const luanUser = "luan";
         const luanPassword = "123";
 
+        const jeisonUser = "jeison";
+        const jeisonPassword = "456";
+
+        const thalisUser = "thalis";
+        const thalisPassword = "789";
+
         // Função para verificar o login
         document.getElementById("loginForm").addEventListener("submit", function(event) {
             event.preventDefault(); // Impede o envio padrão do formulário
@@ -93,7 +99,7 @@
             console.log("Usuário digitado:", usernameInput); // Depuração
             console.log("Senha digitada:", passwordInput);   // Depuração
 
-            if (usernameInput === adminUser,luanUser && passwordInput === adminPassword,luanPassword) {
+            if (usernameInput === adminUser,luanUser, thalisUser, jeisonUser && passwordInput === adminPassword,luanPassword, thalisPassword, jeisonPassword) {
                 console.log("Login bem-sucedido! Redirecionando..."); // Depuração
                 localStorage.setItem('loggedUser', usernameInput); // Armazena o usuário logado
                 window.location.href = "index.html"; // Redireciona para index.html
